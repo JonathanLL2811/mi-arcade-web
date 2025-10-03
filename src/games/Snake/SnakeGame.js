@@ -16,20 +16,16 @@ const DIRECTIONS = {
   RIGHT: [1, 0], 
 };
 
-// ----------------------------------------------------
-// FUNCIÓN CORREGIDA para generar comida aleatoria
-// ----------------------------------------------------
+// --- Función Corregida para generar comida aleatoria ---
 const generateRandomFood = (currentSnake) => {
   let foodPositionFound = false;
   let newFood = [];
 
   while (!foodPositionFound) {
-    // 1. Genera coordenadas aleatorias dentro del tablero
     const randomX = Math.floor(Math.random() * BOARD_SIZE);
     const randomY = Math.floor(Math.random() * BOARD_SIZE);
     newFood = [randomX, randomY];
 
-    // 2. Comprueba si la nueva posición de comida NO choca con el gusano
     const foodCollidesWithSnake = currentSnake.some(([sx, sy]) => sx === randomX && sy === randomY);
 
     if (!foodCollidesWithSnake) {
@@ -41,7 +37,8 @@ const generateRandomFood = (currentSnake) => {
 };
 
 
-function SnakeGame() {
+// ⚠️ Recibe la función setSelectedGame para el botón de regreso
+function SnakeGame({ setSelectedGame }) {
   const [snake, setSnake] = useState(INITIAL_SNAKE);
   const [food, setFood] = useState(INITIAL_FOOD);
   const [direction, setDirection] = useState(DIRECTIONS.RIGHT);
@@ -89,9 +86,7 @@ function SnakeGame() {
   }, [moveSnake, isGameOver, speed]);
 
 
-  // ----------------------------------------------------
   // MANEJO DE TECLADO (CON PREVENCIÓN DE SCROLL)
-  // ----------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (event) => {
       const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
@@ -131,18 +126,7 @@ function SnakeGame() {
     };
   }, [direction, isGameOver]); 
 
-  // Lógica de AdSense (Para cargar el anuncio después de montar/reiniciar)
-  useEffect(() => {
-    try {
-        if (window.adsbygoogle && !isGameOver) {
-            window.adsbygoogle.push({});
-        }
-    } catch (e) {
-        // En desarrollo, esto puede fallar, pero no debe detener la app
-        console.error("Error al intentar cargar AdSense", e);
-    }
-  }, [isGameOver]);
-
+  // ⚠️ LÓGICA DE ADSENSE ELIMINADA PARA USAR SOLO AUTO ADS.
 
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
@@ -154,7 +138,7 @@ function SnakeGame() {
   };
 
 
-  // Renderizado del Tablero (Incluye clases para estilos y elemento interno de comida)
+  // Renderizado del Tablero
   const renderBoard = () => {
     let cells = [];
     for (let y = 0; y < BOARD_SIZE; y++) {
@@ -185,8 +169,13 @@ function SnakeGame() {
 
   return (
     <div className="game-wrapper"> 
+        {/* 🚀 BOTÓN DE REGRESO AL MENÚ */}
+        <button className="back-button" onClick={() => setSelectedGame('home')}>
+            ⬅️ Regresar al Menú
+        </button>
+        
         <div className="game-container">
-          <h1>🐍 The Snake Game</h1>
+          <h1>🐍 El Gusanito</h1>
           <div 
             className="board" 
             style={{ 
@@ -204,16 +193,9 @@ function SnakeGame() {
           )}
         </div>
         
-        {/* ESPACIO PARA EL ANUNCIO (Reemplaza los placeholders con tus IDs) */}
+        {/* ⚠️ CONTENEDOR DE ANUNCIO MANTENIDO SOLO PARA QUE AUTO ADS PUEDA USARLO, PERO LIMPIO. */}
         <div className="ad-unit">
-            <ins 
-                className="adsbygoogle"
-                style={{ display: 'block', textAlign: 'center' }}
-                data-ad-client="ca-pub-YOUR_CLIENT_ID" 
-                data-ad-slot="YOUR_AD_SLOT_ID_1" 
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-            ></ins>
+            {/* AdSense Auto Ads lo llenará automáticamente si lo necesita. */}
         </div>
         
     </div> 

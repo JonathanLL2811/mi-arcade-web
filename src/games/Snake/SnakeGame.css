@@ -8,8 +8,9 @@ body {
   color: #333;
 }
 
-/* Nuevo contenedor para centrar todo (juego + anuncios) */
+/* CLAVE: position: relative permite posicionar el botón absolute */
 .game-wrapper {
+    position: relative; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -45,11 +46,9 @@ h2 {
 .board {
     display: grid;
     
-    /* CLAVE RESPONSIVA: Usa el 95% del ancho de la vista */
     width: 95vw; 
     height: 95vw; 
 
-    /* Limita el tamaño para pantallas grandes (escritorio) */
     max-width: 440px; 
     max-height: 440px;
     
@@ -117,8 +116,31 @@ h2 {
 
 .ad-unit {
     margin: 20px 0;
-    max-width: 440px; /* Limita el ancho del anuncio al ancho del tablero */
+    max-width: 440px; 
     width: 95vw; 
+}
+
+/* 🚀 ESTILOS DEL BOTÓN DE REGRESO 🚀 */
+.back-button {
+    position: absolute; 
+    top: 20px;
+    left: 20px;
+    padding: 10px 15px;
+    background-color: #ff9800; 
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+    z-index: 10; 
+    box-shadow: 0 4px 0 #d97800;
+    transition: transform 0.1s;
+}
+
+.back-button:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0;
 }
 
 /* MEDIA QUERY PARA PANTALLAS PEQUEÑAS */
@@ -132,5 +154,12 @@ h2 {
     .game-over {
         font-size: 1.2rem; 
         padding: 10px 15px;
+    }
+    /* Ajuste responsivo del botón */
+    .back-button {
+        top: 10px;
+        left: 10px;
+        font-size: 0.6rem;
+        padding: 5px 8px;
     }
 }
