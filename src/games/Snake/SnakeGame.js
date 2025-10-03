@@ -16,15 +16,27 @@ const DIRECTIONS = {
   RIGHT: [1, 0], 
 };
 
-// --- Función para generar comida aleatoria ---
+// ----------------------------------------------------
+// FUNCIÓN CORREGIDA para generar comida aleatoria
+// ----------------------------------------------------
 const generateRandomFood = (currentSnake) => {
-  let newFood;
-  do {
-    newFood = [
-      Math.floor(Math.random() * BOARD_SIZE),
-      Math.floor(Math.random() * BOARD_SIZE)
-    ];
-  } while (currentSnake.some(([sx, sy]) => sx === newFood[0] && sy === newFood[1]));
+  let foodPositionFound = false;
+  let newFood = [];
+
+  while (!foodPositionFound) {
+    // 1. Genera coordenadas aleatorias dentro del tablero
+    const randomX = Math.floor(Math.random() * BOARD_SIZE);
+    const randomY = Math.floor(Math.random() * BOARD_SIZE);
+    newFood = [randomX, randomY];
+
+    // 2. Comprueba si la nueva posición de comida NO choca con el gusano
+    const foodCollidesWithSnake = currentSnake.some(([sx, sy]) => sx === randomX && sy === randomY);
+
+    if (!foodCollidesWithSnake) {
+      foodPositionFound = true;
+    }
+  }
+  
   return newFood;
 };
 
@@ -37,7 +49,7 @@ function SnakeGame() {
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
 
-  // Lógica de Movimiento (se mantiene igual)
+  // Lógica de Movimiento
   const moveSnake = useCallback(() => {
     if (isGameOver) return;
 
@@ -62,14 +74,14 @@ function SnakeGame() {
       setFood(generateRandomFood(newSnake));
       setSpeed(s => Math.max(50, s - 5));
     } else {
-      newSnake.pop(); // Mover
+      newSnake.pop(); 
     }
 
     setSnake(newSnake);
   }, [snake, direction, food, isGameOver]);
 
 
-  // GAME LOOP (se mantiene igual)
+  // GAME LOOP
   useEffect(() => {
     if (isGameOver) return; 
     const timerId = setTimeout(moveSnake, speed);
@@ -119,7 +131,19 @@ function SnakeGame() {
     };
   }, [direction, isGameOver]); 
 
-  // Función de reinicio (se mantiene igual)
+  // Lógica de AdSense (Para cargar el anuncio después de montar/reiniciar)
+  useEffect(() => {
+    try {
+        if (window.adsbygoogle && !isGameOver) {
+            window.adsbygoogle.push({});
+        }
+    } catch (e) {
+        // En desarrollo, esto puede fallar, pero no debe detener la app
+        console.error("Error al intentar cargar AdSense", e);
+    }
+  }, [isGameOver]);
+
+
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
     setFood(generateRandomFood(INITIAL_SNAKE));
@@ -130,7 +154,7 @@ function SnakeGame() {
   };
 
 
-  // Renderizado del Tablero (se mantiene igual)
+  // Renderizado del Tablero (Incluye clases para estilos y elemento interno de comida)
   const renderBoard = () => {
     let cells = [];
     for (let y = 0; y < BOARD_SIZE; y++) {
@@ -160,24 +184,39 @@ function SnakeGame() {
   };
 
   return (
-    <div className="game-container">
-      <h1>🐍 The Snake Game</h1>
-      <div 
-        className="board" 
-        style={{ 
-          gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
-          gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr)`
-        }}
-      >
-        {renderBoard()}
-      </div>
-      <h2>Puntuación: {score}</h2>
-      {isGameOver && (
-        <div className="game-over">
-          ¡Game Over! Puntuación: {score}. Presiona **R** para reiniciar.
+    <div className="game-wrapper"> 
+        <div className="game-container">
+          <h1>🐍 The Snake Game</h1>
+          <div 
+            className="board" 
+            style={{ 
+              gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
+              gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr)`
+            }}
+          >
+            {renderBoard()}
+          </div>
+          <h2>Puntuación: {score}</h2>
+          {isGameOver && (
+            <div className="game-over">
+              ¡Game Over! Puntuación: {score}. Presiona **R** para reiniciar.
+            </div>
+          )}
         </div>
-      )}
-    </div>
+        
+        {/* ESPACIO PARA EL ANUNCIO (Reemplaza los placeholders con tus IDs) */}
+        <div className="ad-unit">
+            <ins 
+                className="adsbygoogle"
+                style={{ display: 'block', textAlign: 'center' }}
+                data-ad-client="ca-pub-YOUR_CLIENT_ID" 
+                data-ad-slot="YOUR_AD_SLOT_ID_1" 
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+            ></ins>
+        </div>
+        
+    </div> 
   );
 }
 
