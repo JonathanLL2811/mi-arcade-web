@@ -1,10 +1,25 @@
+/* Importamos la fuente */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* 🚀 CLAVE: Asegurar que el body y el HTML ocupen el 100% de la ventana */
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 .memory-wrapper {
-    position: relative; /* Clave para el botón de regreso */
+    position: relative; 
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 20px;
+    /* 🚀 CLAVE: Usamos min-height: 100vh y centramos verticalmente */
+    min-height: 100vh; 
+    justify-content: center; /* Centrado vertical */
+    padding: 10px; 
+    box-sizing: border-box;
+    overflow-y: hidden; /* ⚠️ OPCIONAL: Evita el scroll si es posible, pero puede cortar si la pantalla es muy pequeña */
 }
 
 .memory-container {
@@ -16,51 +31,69 @@
     background-color: #f4f4f4;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 440px;
-    width: 95vw;
+    max-width: 500px; 
+    width: 98%; 
+    /* 🚀 CLAVE: Añadimos min-height para asegurar que el contenido se ajuste */
+    min-height: 400px;
 }
+
+/* El resto del CSS sigue igual para el responsive grid y las cartas */
 
 h1 {
     font-family: 'Press Start 2P', cursive;
     color: #333;
-    font-size: 1.8rem;
+    font-size: clamp(1.2rem, 5vw, 2rem); 
+    margin-bottom: 20px;
+    text-align: center;
 }
 
+/* --- ESTILOS DEL TABLERO DE JUEGO --- */
 .memory-grid {
     display: grid;
-    /* 4x4 para 16 cartas */
     grid-template-columns: repeat(4, 1fr); 
     grid-template-rows: repeat(4, 1fr);
-    gap: 10px;
+    gap: 8px; 
     width: 95%; 
-    padding: 10px;
+    padding: 5px;
     border-radius: 8px;
     background-color: #fff;
-    aspect-ratio: 1 / 1; /* Mantiene el grid cuadrado */
+    aspect-ratio: 1 / 1; 
+    transition: filter 0.3s;
 }
 
+.game-over-blur {
+    filter: blur(2px); 
+    pointer-events: none; 
+}
+
+/* --- ESTILOS DE LA CARTA --- */
 .card {
     background-color: transparent;
-    perspective: 1000px; 
+    perspective: 1000px;
     cursor: pointer;
     border-radius: 8px;
     border: 1px solid #ddd;
     user-select: none;
+    touch-action: manipulation;
+    height: 0;
+    padding-bottom: 100%; 
+    position: relative;
+    transition: opacity 0.3s; 
 }
 
 .card.matched {
-    opacity: 0.6;
+    opacity: 0.5; 
     pointer-events: none; 
 }
 
 .card-inner {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 100%;
     text-align: center;
     transition: transform 0.6s;
     transform-style: preserve-3d;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
     border-radius: 8px;
 }
 
@@ -76,81 +109,100 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(1rem, 6vw, 2.5rem); /* Tamaño responsivo del icono */
     font-weight: bold;
     border-radius: 8px;
+    font-size: clamp(1.5rem, 8vw, 3rem); 
 }
 
 .card-front {
-    background-color: #2196F3; 
+    background-color: #2196F3;
     color: white;
     font-family: 'Press Start 2P', cursive;
+    font-size: clamp(0.8rem, 3vw, 1.2rem); 
 }
 
 .card-back {
-    background-color: #fff; 
+    background-color: #fff;
     color: #333;
     transform: rotateY(180deg);
 }
 
-.info-bar {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    width: 95%;
-    font-size: 1.2rem;
+/* --- INFORMACIÓN DEL JUEGO Y BOTONES --- */
+.game-status-info {
+    margin: 15px 0;
+    font-size: clamp(0.7rem, 3vw, 0.9rem); 
+    font-weight: bold;
+    color: #007bff;
+    text-align: center;
     font-family: 'Press Start 2P', cursive;
+    width: 100%;
+}
+
+.game-status {
+    margin-bottom: 15px;
+    font-size: clamp(0.8rem, 4vw, 1rem); 
+    font-weight: bold;
+    color: #4CAF50; 
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.info-bar {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center; 
+    width: 100%;
 }
 
 .reset-button {
-    padding: 10px 20px;
+    padding: 10px 15px;
     background-color: #ff9800;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: clamp(0.7rem, 3vw, 0.8rem); 
     transition: background-color 0.3s;
     font-family: 'Press Start 2P', cursive;
+    box-shadow: 0 3px 0 #d97800;
+}
+.reset-button:active {
+    transform: translateY(3px);
+    box-shadow: none;
 }
 
-.game-status {
-    margin-bottom: 15px;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #4CAF50;
-    text-align: center;
-    font-family: 'Press Start 2P', cursive;
-}
-
-/* Estilos del botón de regreso (Copias de SnakeGame) */
+/* --- BOTÓN DE REGRESO AL MENÚ --- */
 .back-button {
     position: absolute; 
-    top: 20px;
-    left: 20px;
-    padding: 10px 15px;
+    top: 10px; 
+    left: 10px;
+    padding: 8px 12px;
     background-color: #ff9800; 
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-family: 'Press Start 2P', cursive;
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 2.5vw, 0.8rem); 
     z-index: 10; 
-    box-shadow: 0 4px 0 #d97800;
+    box-shadow: 0 3px 0 #d97800;
     transition: transform 0.1s;
 }
 
 .back-button:active {
-    transform: translateY(4px);
+    transform: translateY(3px);
     box-shadow: 0 0 0;
 }
 
-@media (max-width: 500px) {
-    .back-button {
-        top: 10px;
-        left: 10px;
-        font-size: 0.6rem;
-        padding: 5px 8px;
-    }
+/* Contenedor de anuncios (Se mantiene) */
+.ad-unit-memory {
+    margin: 20px 0;
+    width: 98%;
+    max-width: 500px;
+    min-height: 100px;
 }

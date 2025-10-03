@@ -1,131 +1,156 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MemoryGame.css';
 
-// ---------------------------------------------------
-// CONFIGURACIÓN INICIAL
-// ---------------------------------------------------
+// --- CONFIGURACIÓN ---
+const CARD_ICONS = [1, 2, 3, 4, 5, 6, 7, 8]; // Usamos números (8 pares)
+const TOTAL_PAIRS = CARD_ICONS.length;
+// 🚀 LÓGICA DEL INTENTO: 8 aciertos mínimos + 12 intentos de error = 20
+const MAX_ATTEMPTS = 20; 
+const FLIP_BACK_DELAY = 1200; // 1.2 segundos
 
-// Símbolos que usaremos para las cartas (deben ser un número par)
-const CARD_ICONS = ['🍎', '🍌', '🍇', '🍉', '🍓', '🥝', '🍍', '🥭'];
-const GAME_SIZE = CARD_ICONS.length * 2; // Total de 16 cartas (8 pares)
-
-// Función para inicializar el tablero
+// --- FUNCIÓN DE INICIALIZACIÓN ---
 const initializeCards = () => {
-  // 1. Duplica los iconos para crear las parejas
   let cards = [...CARD_ICONS, ...CARD_ICONS];
   
-  // 2. Barajar (Algoritmo de Fisher-Yates)
+  // Barajar
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
 
-  // 3. Mapear a objetos de estado
   return cards.map((icon, index) => ({
     id: index,
-    icon: icon,
-    isFlipped: false, // Está boca arriba?
-    isMatched: false, // Ya se encontró la pareja?
+    icon: icon, 
+    isFlipped: false, 
+    isMatched: false,
   }));
 };
 
 
-// ⚠️ Recibe setSelectedGame para el botón de regreso
 function MemoryGame({ setSelectedGame }) {
   const [cards, setCards] = useState(initializeCards);
-  const [flippedCards, setFlippedCards] = useState([]); // Almacena los IDs de las 2 cartas volteadas
-  const [moves, setMoves] = useState(0); // Contador de movimientos
-  const [isBlocking, setIsBlocking] = useState(false); // Bloquea clics mientras se revisan las cartas
+  const [flippedCards, setFlippedCards] = useState([]); 
+  const [matches, setMatches] = useState(0); 
+  const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS); 
+  const [isBlocking, setIsBlocking] = useState(false); 
+  const [isGameOver, setIsGameOver] = useState(false);
 
-  // ---------------------------------------------------
-  // LÓGICA DE MANEJO DE CLIC EN UNA CARTA
-  // ---------------------------------------------------
+  // --- LÓGICA DE CLIC INTEGRADA (Forma más robusta) ---
   const handleCardClick = (id) => {
-    // Si el juego está bloqueado o ya se han volteado 2 cartas, ignora el clic
-    if (isBlocking || flippedCards.length === 2) return;
+    // 1. Bloqueo inicial
+    if (isBlocking || isGameOver || flippedCards.length === 2) return;
     
     setCards(prevCards => {
-      // Encuentra la carta en el estado
       const cardIndex = prevCards.findIndex(card => card.id === id);
       const card = prevCards[cardIndex];
 
-      // Si la carta ya está volteada o encontrada, no hagas nada
+      // Ignorar si ya está volteada o emparejada
       if (card.isFlipped || card.isMatched) return prevCards;
 
-      // Voltea la carta
+      // Voltear la carta actual
       const newCards = [...prevCards];
       newCards[cardIndex] = { ...card, isFlipped: true };
-
-      // Agrega a la lista de cartas volteadas
-      setFlippedCards(prev => [...prev, id]);
-      setMoves(m => m + 1); // Incrementa movimientos
       
-      return newCards;
+      // 2. Determinar el estado del volteo
+      const currentFlipped = [...flippedCards, id];
+      
+      // Si es la primera carta, solo actualizamos el estado y salimos
+      if (currentFlipped.length === 1) {
+        setFlippedCards(currentFlipped);
+        return newCards;
+      }
+
+      // 3. Si es la segunda carta (currentFlipped.length === 2):
+      
+      // Bloqueamos clics
+      setIsBlocking(true); 
+      setAttemptsLeft(prev => prev - 1); // Contamos el intento
+
+      const [id1, id2] = currentFlipped;
+      const card1 = newCards.find(c => c.id === id1);
+      const card2 = newCards.find(c => c.id === id2);
+
+      // 4. Validación (Match o No Match)
+      if (card1.icon === card2.icon) {
+        // --- MATCH: Dejar abiertas y sumar acierto ---
+        setMatches(m => m + 1);
+        
+        const finalCards = newCards.map(c => 
+            c.id === id1 || c.id === id2 
+                ? { ...c, isMatched: true, isFlipped: true } 
+                : c
+        );
+
+        // Desbloquear inmediatamente para el siguiente turno
+        setFlippedCards([]); 
+        setIsBlocking(false); 
+        return finalCards;
+        
+      } else {
+        // --- NO MATCH: Programar el volteo de regreso ---
+        
+        // Usamos setTimeout para el retardo visual
+        setTimeout(() => {
+          setCards(pCards => 
+            pCards.map(c => 
+              c.id === id1 || c.id === id2 
+                ? { ...c, isFlipped: false } // Se tapan
+                : c
+            )
+          );
+          
+          // Desbloquear después del retardo
+          setFlippedCards([]); 
+          setIsBlocking(false); 
+        }, FLIP_BACK_DELAY); 
+
+        // Retornamos las cartas temporalmente volteadas para que se vean
+        return newCards;
+      }
     });
   };
 
-  // ---------------------------------------------------
-  // LÓGICA DE COMPARACIÓN DE CARTAS (useEffect)
-  // ---------------------------------------------------
+
+  // --- 🚀 LÓGICA DE FIN DEL JUEGO CON INTENTOS 🚀 ---
   useEffect(() => {
-    if (flippedCards.length === 2) {
-      setIsBlocking(true); // Bloquea nuevos clics
+      const allMatched = matches === TOTAL_PAIRS;
+      const attemptsExhausted = attemptsLeft <= 0;
 
-      // Obtener las dos cartas volteadas
-      const [id1, id2] = flippedCards;
-      const card1 = cards.find(c => c.id === id1);
-      const card2 = cards.find(c => c.id === id2);
-
-      if (card1.icon === card2.icon) {
-        // MATCH ENCONTRADO
-        setTimeout(() => {
-          setCards(prevCards => 
-            prevCards.map(card => 
-              card.id === id1 || card.id === id2 
-                ? { ...card, isMatched: true, isFlipped: true } 
-                : card
-            )
-          );
-          setFlippedCards([]); // Limpia el estado
-          setIsBlocking(false); // Desbloquea
-        }, 800);
-      } else {
-        // NO HAY MATCH
-        setTimeout(() => {
-          setCards(prevCards => 
-            prevCards.map(card => 
-              card.id === id1 || card.id === id2 
-                ? { ...card, isFlipped: false } // Voltea de nuevo
-                : card
-            )
-          );
-          setFlippedCards([]); // Limpia el estado
-          setIsBlocking(false); // Desbloquea
-        }, 1200);
+      if (allMatched) {
+          // Gana si destapa todos Y todavía tiene intentos
+          if (attemptsLeft >= 0) { 
+              setIsGameOver(true);
+          }
       }
-    }
-  }, [flippedCards, cards]);
+      
+      if (attemptsExhausted && !allMatched) {
+          // Pierde si gasta todos los intentos y NO destapó todos
+          setIsGameOver(true);
+      }
+      
+      // Si se agotan los intentos justo al hacer el último match, también es victoria
+      if (allMatched && attemptsExhausted) {
+          setIsGameOver(true);
+      }
+      
+  }, [attemptsLeft, matches]);
 
 
-  // ---------------------------------------------------
-  // LÓGICA DE FIN DEL JUEGO
-  // ---------------------------------------------------
-  const isGameFinished = cards.length > 0 && cards.every(card => card.isMatched);
-
+  // --- REINICIO DEL JUEGO ---
   const resetGame = () => {
     setCards(initializeCards());
     setFlippedCards([]);
-    setMoves(0);
+    setMatches(0);
+    setAttemptsLeft(MAX_ATTEMPTS);
     setIsBlocking(false);
+    setIsGameOver(false);
   };
 
+  // --- RENDERIZADO ---
+  const hasWon = matches === TOTAL_PAIRS;
 
-  // ---------------------------------------------------
-  // RENDERIZADO
-  // ---------------------------------------------------
   return (
     <div className="memory-wrapper">
-        {/* 🚀 BOTÓN DE REGRESO AL MENÚ */}
         <button className="back-button" onClick={() => setSelectedGame('home')}>
             ⬅️ Regresar al Menú
         </button>
@@ -133,14 +158,25 @@ function MemoryGame({ setSelectedGame }) {
         <div className="memory-container">
           <h1>Juego de Memoria 🧠</h1>
           
-          {isGameFinished && (
+          {(isGameOver) ? (
             <div className="game-status">
-              ¡Ganaste! 🎉 Lo lograste en {moves} movimientos.
+              <span style={{color: hasWon ? '#4CAF50' : '#FF4D4D'}}>
+                  {hasWon ? 
+                      `¡GANASTE! 🎉 Completaste los ${TOTAL_PAIRS} pares.` : 
+                      `¡PERDISTE! 😢 Te quedaste sin intentos.`
+                  }
+              </span>
               <button onClick={resetGame} className="reset-button">Jugar de Nuevo</button>
+            </div>
+          ) : (
+            <div className="game-status-info">
+                Intentos Restantes: {attemptsLeft} / {MAX_ATTEMPTS} | Aciertos: {matches} / {TOTAL_PAIRS}
             </div>
           )}
 
-          <div className={`memory-grid grid-${Math.sqrt(GAME_SIZE)}`}>
+          <div 
+            className={`memory-grid grid-4 ${isGameOver ? 'game-over-blur' : ''}`}
+          >
             {cards.map(card => (
               <div 
                 key={card.id} 
@@ -149,19 +185,17 @@ function MemoryGame({ setSelectedGame }) {
               >
                 <div className="card-inner">
                   <div className="card-front">?</div>
-                  <div className="card-back">{card.icon}</div>
+                  <div className="card-back" style={{fontSize: '2.5rem'}}>{card.icon}</div>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="info-bar">
-            <p>Movimientos: {moves}</p>
-            <button onClick={resetGame} className="reset-button">Reiniciar</button>
+            <button onClick={resetGame} className="reset-button">Reiniciar Juego</button>
           </div>
         </div>
 
-        {/* Contenedor de anuncios para Auto Ads */}
         <div className="ad-unit-memory"></div>
     </div>
   );
