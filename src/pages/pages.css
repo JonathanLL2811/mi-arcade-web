@@ -1,0 +1,161 @@
+/* ------------------------------------------- */
+/* 1. Estilos Generales y Responsiveness */
+/* ------------------------------------------- */
+
+/* Contenedor principal que centra el contenido y establece el fondo */
+.page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alineamos arriba para que no flote en pantallas grandes */
+    min-height: 100vh;
+    background-color: #f4f7f9; /* Fondo gris claro suave */
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Tarjeta principal de contenido */
+.page-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px; /* Separación del borde superior */
+    text-align: left; /* ⬅️ CAMBIO CLAVE: Alineamos todo el texto a la izquierda */
+}
+
+/* Título principal de la página */
+.page-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50; /* Gris oscuro elegante */
+    border-bottom: 3px solid #3498db; /* Línea de acento azul */
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+}
+.page-title span {
+    margin-right: 10px;
+    font-size: 1.5em;
+}
+
+/* Botón de Regreso */
+.page-back-button {
+    background: none;
+    border: none;
+    color: #3498db;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.page-back-button:hover {
+    background-color: #ecf0f1; /* Gris muy claro al pasar el ratón */
+}
+
+
+/* ------------------------------------------- */
+/* 2. Estilos de Contenido Textual */
+/* ------------------------------------------- */
+
+/* Párrafos y texto general */
+.page-content p {
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    /* text-align: left; Ya heredado de .page-card */
+}
+
+/* Títulos de sección */
+.page-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #34495e; /* Azul grisáceo */
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-left: 4px solid #3498db;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+}
+.page-section-title span {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+/* Listas */
+.page-content ul {
+    list-style-type: none; /* Quitamos viñetas por defecto */
+    padding-left: 0;
+    margin-bottom: 25px;
+}
+.page-content ul li {
+    background-color: #ecf0f1; /* Fondo sutil para items de lista */
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #333;
+    display: flex;
+    align-items: flex-start;
+}
+.page-content ul li strong {
+    color: #2c3e50;
+}
+
+
+/* Bloque de Información de Contacto */
+.contact-info-block {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f7f9fb; /* Fondo muy claro para destacar */
+    border: 1px dashed #bdc3c7; /* Borde discontinuo */
+    border-radius: 8px;
+}
+
+.contact-detail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.contact-detail span {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    color: #2ecc71; /* Acento verde para datos de contacto */
+}
+.contact-detail a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+}
+.contact-detail a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo para notas legales (Privacidad) */
+.legal-note {
+    font-style: italic;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-top: 30px;
+    text-align: left; /* ⬅️ CAMBIO CLAVE: Alineamos a la izquierda */
+}
+
+/* Media Query para móvil */
+@media (max-width: 600px) {
+    .page-card {
+        padding: 20px;
+    }
+    .page-title {
+        font-size: 1.8rem;
+    }
+    .page-section-title {
+        font-size: 1.3rem;
+    }
+}
