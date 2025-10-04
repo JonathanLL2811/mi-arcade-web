@@ -15,7 +15,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%; 
-    padding-bottom: 20px; /* Espacio extra para los controles móviles en la parte inferior */
+    /* Se puede quitar el padding-bottom ya que los controles móviles desaparecieron */
 }
 
 .game-container {
@@ -61,6 +61,9 @@ h2 {
     box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3); 
     overflow: hidden;
     margin: 0 auto; /* Centrado */
+
+    /* 💡 Nuevo: Indica interactividad, pero solo al pasar el ratón */
+    cursor: pointer; 
 }
 
 .cell {}
@@ -170,56 +173,6 @@ h2 {
     box-shadow: 0 0 0;
 }
 
-/* ========================================= */
-/* 📱 NUEVOS ESTILOS PARA CONTROLES MÓVILES */
-/* ========================================= */
-
-.mobile-controls {
-    display: none; /* Por defecto, oculto en escritorio */
-    flex-direction: column;
-    align-items: center;
-    margin-top: 25px;
-    width: 300px; /* Ancho fijo para el pad */
-    user-select: none; /* Evita que se seleccione el texto al tocar */
-    touch-action: manipulation; /* Mejora la respuesta táctil */
-}
-
-.left-right-row {
-    display: flex;
-    justify-content: space-between; /* Espacio entre los botones Izquierda y Derecha */
-    width: 100%;
-}
-
-/* Estilo general para los botones de dirección */
-.mobile-controls button {
-    background-color: #333; /* Color oscuro para contraste */
-    color: #fff;
-    border: 2px solid #fff;
-    border-radius: 10px;
-    width: 80px; /* Tamaño de los botones */
-    height: 80px;
-    font-size: 2.2rem;
-    cursor: pointer;
-    box-shadow: 0 6px 0 #000;
-    transition: all 0.1s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Press Start 2P', cursive;
-    padding: 0;
-}
-
-.mobile-controls button:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #000;
-    background-color: #555;
-}
-
-.up-btn, .down-btn {
-    width: 80px;
-    align-self: center;
-}
-
 /* ============================================== */
 /* 📱 MEDIA QUERY: Ajustes para Pantallas Móviles */
 /* ============================================== */
@@ -234,11 +187,6 @@ h2 {
         font-size: 1.2rem; 
         padding: 10px 15px;
     }
-    
-    /* Hace visibles los controles móviles */
-    .mobile-controls {
-        display: flex; 
-    }
 
     /* Reduce el padding para el botón de regreso */
     .back-button {
@@ -248,8 +196,5 @@ h2 {
         padding: 5px 8px;
     }
     
-    /* Asegura que el tablero no ocupe demasiado espacio en la altura */
-    .game-container {
-        padding-bottom: 5px;
-    }
+    /* Se puede quitar el ajuste del padding-bottom del game-container */
 }
