@@ -6,54 +6,68 @@ body {
     background-color: #f0f8ff; 
     font-family: 'Press Start 2P', cursive;
     color: #333;
-    /* Evita el scroll en el body si se exceden los límites */
-    overflow: hidden; 
 }
 
-/* CLAVE: position: relative permite posicionar el botón absolute */
+/* 💡 SOLUCIÓN SCROLL #1: Quitamos el 'overflow: hidden' del body */
+body {
+    margin: 0;
+    background-color: #f0f8ff; 
+    font-family: 'Press Start 2P', cursive;
+    color: #333;
+    overflow-y: auto; /* Permitimos scroll en el body si es necesario */
+}
+
+
 .game-wrapper {
     position: relative; 
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%; 
-    /* Ajustamos el min-height para que siempre ocupe el alto de la vista */
-    min-height: 100vh; /* Asegura que el wrapper ocupe toda la altura visible */
-    justify-content: center; /* Centra el contenido verticalmente */
-    padding: 10px; /* Un poco de padding general para no pegar al borde */
-    box-sizing: border-box; /* Incluye padding en el width/height total */
+    min-height: 100vh; 
+    justify-content: flex-start; /* 💡 ALINEACIÓN: Empezar desde arriba */
+    padding: 10px; 
+    box-sizing: border-box; 
+    
+    /* 💡 SOLUCIÓN SCROLL #2: Cuando el juego está en curso, bloqueamos el scroll */
+    overflow: hidden; 
 }
+
+/* 💡 SOLUCIÓN SCROLL #3: Clase aplicada al game-wrapper en Game Over */
+.game-over-state {
+    overflow: visible; /* Habilitamos el scroll cuando el juego termina */
+    min-height: auto; /* Permite que el wrapper se adapte al contenido */
+}
+
 
 .game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Reducimos el padding para dejar más espacio al tablero */
     padding: 10px; 
     background: linear-gradient(135deg, #a8e063, #56ab2f); 
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); 
     margin: 10px auto; 
-    /* Quitamos max-width: 95% para que se ajuste mejor en pantallas pequeñas */
-    width: 100%; /* Permite que ocupe todo el ancho disponible del game-wrapper */
-    max-width: 500px; /* Mantenemos un max-width para pantallas de escritorio */
-    box-sizing: border-box; /* Incluye padding en el width/height total */
+    width: 100%; 
+    max-width: 500px; 
+    box-sizing: border-box; 
 }
 
 h1 {
     font-size: 2.5rem;
     color: #fff; 
     text-shadow: 3px 3px 0 rgba(0,0,0,0.2); 
-    margin-bottom: 10px; /* Reducimos el margen */
-    text-align: center; /* Asegura que el título esté centrado */
-    word-break: break-word; /* Rompe palabras largas si es necesario */
-    line-height: 1.1; /* Ajusta el interlineado */
+    margin-bottom: 10px; 
+    text-align: center; 
+    word-break: break-word; 
+    line-height: 1.1; 
 }
 
 h2 {
     font-size: 1.8rem;
     color: #fff;
-    margin-top: 15px; /* Reducimos el margen superior */
+    margin-top: 15px; 
     text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
     text-align: center;
 }
@@ -61,38 +75,40 @@ h2 {
 .board {
     display: grid;
     
-    /* 🚀 CAMBIO CLAVE PARA ADAPTABILIDAD TOTAL Y SOLUCIÓN AL PROBLEMA 🚀 */
-    /* El tamaño será el valor MÍNIMO entre 90% del ancho (vw) y 70% del alto (vh) en móviles.
-       El 70% vh es crucial para dejar espacio para el título y la puntuación sin scroll. */
-    width: min(90vw, 90vh); /* En pantallas pequeñas, usa el 90% del viewport más pequeño */
+    width: min(90vw, 90vh); 
     height: min(90vw, 90vh);
 
-    /* Quitamos max-width y max-height del board aquí para que no interfieran en móvil.
-       La limitación de tamaño general ahora la hará el max-width del .game-container */
-    
     border: 8px solid #333; 
     border-radius: 10px; 
     background-color: #b3cde0; 
     box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3); 
     overflow: hidden;
-    margin: 0 auto; /* Centrado */
+    margin: 0 auto; 
 
     cursor: pointer; 
-    box-sizing: border-box; /* Asegura que el border no añada tamaño extra */
+    box-sizing: border-box; 
 }
 
 .cell {}
 
+/* 💡 SOLUCIÓN FLUIDEZ #1: TRANSICIÓN APLICADA AL CUERPO DEL GUSANO */
 .snake-body {
     background-color: #00b300; 
     border-radius: 4px; 
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    /* Añade una transición suave a todas las propiedades (all)
+      durante 200ms (igual a INITIAL_SPEED) con easing "linear".
+      Esto hace que el movimiento se deslice en lugar de saltar.
+    */
+    transition: all 200ms linear; 
 }
 
 .snake-head {
     background-color: #007f00; 
     border-radius: 50%; 
     box-shadow: 0 0 8px rgba(0, 255, 0, 0.7); 
+    /* También aplicamos la transición a la cabeza */
+    transition: all 200ms linear; 
 }
 
 .food {
@@ -124,14 +140,14 @@ h2 {
 }
 
 .game-over {
-    margin-top: 15px; /* Reducimos el margen */
+    margin-top: 15px; 
     font-size: 1.6rem;
     color: #ffeb3b; 
     font-weight: bold;
     text-align: center;
     text-shadow: 2px 2px 0 #d32f2f; 
     background-color: rgba(0, 0, 0, 0.7);
-    padding: 10px 15px; /* Reducimos el padding */
+    padding: 10px 15px; 
     border-radius: 10px;
     border: 2px solid #ffeb3b;
     display: flex;
@@ -141,14 +157,14 @@ h2 {
 
 .game-over button {
     font-family: 'Press Start 2P', cursive;
-    margin-top: 10px; /* Reducimos el margen */
-    padding: 8px 15px; /* Reducimos el padding */
+    margin-top: 10px; 
+    padding: 8px 15px; 
     background-color: #ff4d4d;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9rem; /* Ajustamos el tamaño de fuente */
+    font-size: 0.9rem; 
     box-shadow: 0 4px 0 #cc0000;
     transition: transform 0.1s;
 }
@@ -160,7 +176,7 @@ h2 {
 
 
 .ad-unit {
-    margin: 10px 0; /* Reducimos el margen */
+    margin: 10px 0; 
     max-width: 440px; 
     width: 95vw; 
 }
@@ -168,16 +184,16 @@ h2 {
 /* 🚀 ESTILOS DEL BOTÓN DE REGRESO 🚀 */
 .back-button {
     position: absolute; 
-    top: 10px; /* Subimos un poco el botón */
-    left: 10px; /* Movemos a la izquierda */
-    padding: 8px 12px; /* Reducimos el padding */
+    top: 10px; 
+    left: 10px; 
+    padding: 8px 12px; 
     background-color: #ff9800; 
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-family: 'Press Start 2P', cursive;
-    font-size: 0.7rem; /* Ajustamos el tamaño de fuente */
+    font-size: 0.7rem; 
     z-index: 10; 
     box-shadow: 0 4px 0 #d97800;
     transition: transform 0.1s;
@@ -191,15 +207,15 @@ h2 {
 /* MEDIA QUERY PARA PANTALLAS PEQUEÑAS (AJUSTES FINOS) */
 @media (max-width: 500px) {
     h1 {
-        font-size: 1.2rem; /* Más pequeño para móviles */
+        font-size: 1.2rem; 
         margin-bottom: 8px;
     }
     h2 {
-        font-size: 1rem; /* Más pequeño para móviles */
+        font-size: 1rem; 
         margin-top: 10px;
     }
     .game-over {
-        font-size: 1rem; /* Más pequeño para móviles */
+        font-size: 1rem; 
         padding: 8px 12px;
     }
     .game-over button {
@@ -207,18 +223,17 @@ h2 {
         padding: 6px 10px;
     }
 
-    /* Ajuste responsivo del botón */
     .back-button {
-        top: 5px; /* Más arriba */
-        left: 5px; /* Más a la izquierda */
+        top: 5px; 
+        left: 5px; 
         font-size: 0.55rem;
         padding: 4px 6px;
     }
     .game-wrapper {
-        padding: 5px; /* Menos padding general en móviles */
+        padding: 5px; 
     }
     .game-container {
-        padding: 5px; /* Menos padding interno en móviles */
+        padding: 5px; 
         margin: 5px auto;
     }
 }

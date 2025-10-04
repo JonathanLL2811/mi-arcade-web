@@ -3,8 +3,8 @@ import './SnakeGame.css';
 
 // --- Configuraciones del Juego ---
 const BOARD_SIZE = 20; 
-// 🚀 CAMBIO CLAVE 1: Reducimos el tiempo de espera (más rápido y fluido)
-const INITIAL_SPEED = 150; // De 200ms a 150ms
+// 💡 VOLVEMOS A 200ms. El CSS manejará la fluidez visual.
+const INITIAL_SPEED = 200; 
 
 // --- Posiciones y Dirección ---
 const INITIAL_SNAKE = [[10, 10]]; 
@@ -45,9 +45,6 @@ function SnakeGame({ setSelectedGame }) {
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
-  
-  // 🚀 CAMBIO CLAVE 2: Nuevo estado para la próxima dirección deseada.
-  // Esto hace que el cambio de dirección se sienta instantáneo al presionar la tecla/swipe.
   const [nextDirection, setNextDirection] = useState(DIRECTIONS.RIGHT); 
 
   const boardRef = useRef(null);
@@ -56,15 +53,12 @@ function SnakeGame({ setSelectedGame }) {
   const moveSnake = useCallback(() => {
     if (isGameOver) return;
     
-    // 🚀 CAMBIO CLAVE 3: Aplicamos la 'nextDirection' justo antes de mover
-    // Esto asegura que la dirección siempre se actualice en el siguiente ciclo.
+    // Aplicamos la 'nextDirection'
     setDirection(prevDirection => {
-        // Usamos la dirección almacenada en nextDirection
         return nextDirection;
     });
 
-    // Usamos la dirección *actual* para calcular el nuevo movimiento
-    const currentDirection = nextDirection; // Usamos nextDirection aquí para el cálculo
+    const currentDirection = nextDirection;
     const head = snake[0];
     const newHead = [head[0] + currentDirection[0], head[1] + currentDirection[1]];
 
@@ -84,14 +78,14 @@ function SnakeGame({ setSelectedGame }) {
     if (newHead[0] === food[0] && newHead[1] === food[1]) {
       setScore(s => s + 1);
       setFood(generateRandomFood(newSnake));
-      // Aumentamos la velocidad de forma más agresiva para el "flow"
-      setSpeed(s => Math.max(50, s - 8)); 
+      // 💡 REDUCCIÓN MÁS SUAVE DE VELOCIDAD
+      setSpeed(s => Math.max(50, s - 5)); // De 8 a 5 para un aumento más gradual
     } else {
       newSnake.pop(); 
     }
 
     setSnake(newSnake);
-  }, [snake, nextDirection, food, isGameOver]); // Dependencia: nextDirection
+  }, [snake, nextDirection, food, isGameOver]); 
 
   // GAME LOOP (sin cambios)
   useEffect(() => {
@@ -101,9 +95,8 @@ function SnakeGame({ setSelectedGame }) {
   }, [moveSnake, isGameOver, speed]);
 
 
-  // ==========================================================
-  // 📱 LÓGICA DE DETECCIÓN DE SWIPE (DESLIZAMIENTO) EN PANTALLA
-  // ==========================================================
+  // ... (Lógica de Swipe y Teclado se mantienen, actualizando setNextDirection) ...
+  // LÓGICA DE DETECCIÓN DE SWIPE (DESLIZAMIENTO) EN PANTALLA
   useEffect(() => {
     if (isGameOver || !boardRef.current) return;
 
@@ -147,7 +140,6 @@ function SnakeGame({ setSelectedGame }) {
           }
         }
         
-        // 🚀 CAMBIO CLAVE 4: Si hay un swipe válido, actualiza nextDirection
         if (newDirection) {
             setNextDirection(newDirection);
         }
@@ -197,7 +189,6 @@ function SnakeGame({ setSelectedGame }) {
           break;
       }
       
-      // 🚀 CAMBIO CLAVE 5: Actualiza nextDirection con la tecla presionada
       if (newDirection) {
           setNextDirection(newDirection);
       }
@@ -208,21 +199,22 @@ function SnakeGame({ setSelectedGame }) {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [direction, isGameOver]); 
-  // OJO: La dependencia 'direction' es crucial aquí.
+  
+  // ... (Resto de funciones y renderizado) ...
+
 
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
     setFood(generateRandomFood(INITIAL_SNAKE));
     setDirection(DIRECTIONS.RIGHT);
-    setNextDirection(DIRECTIONS.RIGHT); // Resetear también la próxima dirección
+    setNextDirection(DIRECTIONS.RIGHT); 
     setIsGameOver(false);
     setScore(0);
     setSpeed(INITIAL_SPEED);
   };
 
 
-  // ... (Resto del renderizado se mantiene igual) ...
-
+  // Renderizado del Tablero (sin cambios)
   const renderBoard = () => {
     let cells = [];
     for (let y = 0; y < BOARD_SIZE; y++) {
@@ -251,8 +243,9 @@ function SnakeGame({ setSelectedGame }) {
     return cells;
   };
 
+  // 💡 CLASE CONDICIONAL: Añadimos una clase al wrapper para el estado de Game Over
   return (
-    <div className="game-wrapper"> 
+    <div className={`game-wrapper ${isGameOver ? 'game-over-state' : ''}`}> 
         <button className="back-button" onClick={() => setSelectedGame('home')}>
             ⬅️ Regresar al Menú
         </button>
