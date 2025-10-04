@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './SnakeGame.css'; 
 
 // --- Configuraciones del Juego ---
@@ -11,7 +11,7 @@ const INITIAL_FOOD = [5, 5];
 
 const DIRECTIONS = {
   UP: [0, -1],   
-  DOWN: [0, 1],  
+  DOWN: [0, 1],   
   LEFT: [-1, 0], 
   RIGHT: [1, 0], 
 };
@@ -37,7 +37,6 @@ const generateRandomFood = (currentSnake) => {
 };
 
 
-// ⚠️ Recibe la función setSelectedGame para el botón de regreso
 function SnakeGame({ setSelectedGame }) {
   const [snake, setSnake] = useState(INITIAL_SNAKE);
   const [food, setFood] = useState(INITIAL_FOOD);
@@ -46,7 +45,10 @@ function SnakeGame({ setSelectedGame }) {
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
 
-  // Lógica de Movimiento
+  // Referencia para el contenedor del tablero para la detección de toque
+  const boardRef = useRef(null);
+
+  // Lógica de Movimiento (sin cambios)
   const moveSnake = useCallback(() => {
     if (isGameOver) return;
 
@@ -78,7 +80,7 @@ function SnakeGame({ setSelectedGame }) {
   }, [snake, direction, food, isGameOver]);
 
 
-  // GAME LOOP
+  // GAME LOOP (sin cambios)
   useEffect(() => {
     if (isGameOver) return; 
     const timerId = setTimeout(moveSnake, speed);
@@ -86,12 +88,80 @@ function SnakeGame({ setSelectedGame }) {
   }, [moveSnake, isGameOver, speed]);
 
 
-  // MANEJO DE TECLADO (CON PREVENCIÓN DE SCROLL)
+  // ==========================================================
+  // 📱 LÓGICA DE DETECCIÓN DE SWIPE (DESLIZAMIENTO) EN PANTALLA
+  // ==========================================================
+  useEffect(() => {
+    if (isGameOver || !boardRef.current) return;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const SWIPE_THRESHOLD = 50; // Distancia mínima para considerarse un swipe
+
+    const element = boardRef.current;
+    
+    // 1. Guarda la posición inicial del toque
+    const handleTouchStart = (event) => {
+      // Usar event.touches[0] para asegurar el primer punto de toque
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+      event.preventDefault(); // Evita el scroll vertical o zoom
+    };
+
+    // 2. Calcula la dirección al terminar el toque
+    const handleTouchEnd = (event) => {
+      // event.changedTouches[0] es el punto donde se levantó el dedo
+      const touchEndX = event.changedTouches[0].clientX;
+      const touchEndY = event.changedTouches[0].clientY;
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      const [currentDx, currentDy] = direction;
+      
+      // Aseguramos que la distancia recorrida sea significativa (Swipe Threshold)
+      if (Math.abs(deltaX) > SWIPE_THRESHOLD || Math.abs(deltaY) > SWIPE_THRESHOLD) {
+          
+        // Si el desplazamiento horizontal es mayor que el vertical
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Derecha o Izquierda
+          if (deltaX > 0) {
+            // Derecha (si no va a la izquierda)
+            if (currentDx === 0) setDirection(DIRECTIONS.RIGHT);
+          } else {
+            // Izquierda (si no va a la derecha)
+            if (currentDx === 0) setDirection(DIRECTIONS.LEFT);
+          }
+        } else {
+          // Arriba o Abajo
+          if (deltaY > 0) {
+            // Abajo (si no va hacia arriba)
+            if (currentDy === 0) setDirection(DIRECTIONS.DOWN);
+          } else {
+            // Arriba (si no va hacia abajo)
+            if (currentDy === 0) setDirection(DIRECTIONS.UP);
+          }
+        }
+      }
+    };
+
+    // Asignar los listeners de eventos táctiles
+    element.addEventListener('touchstart', handleTouchStart);
+    element.addEventListener('touchend', handleTouchEnd);
+    
+    // Cleanup: remover los listeners al desmontar
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [direction, isGameOver]); 
+  // ==========================================================
+
+  // MANEJO DE TECLADO (sin cambios)
   useEffect(() => {
     const handleKeyDown = (event) => {
       const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
-      // Bloquea el comportamiento predeterminado (scroll) de las flechas
       if (arrowKeys.includes(event.key)) {
           event.preventDefault(); 
       }
@@ -126,7 +196,6 @@ function SnakeGame({ setSelectedGame }) {
     };
   }, [direction, isGameOver]); 
 
-  // ⚠️ LÓGICA DE ADSENSE ELIMINADA PARA USAR SOLO AUTO ADS.
 
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
@@ -138,7 +207,7 @@ function SnakeGame({ setSelectedGame }) {
   };
 
 
-  // Renderizado del Tablero
+  // Renderizado del Tablero (sin cambios)
   const renderBoard = () => {
     let cells = [];
     for (let y = 0; y < BOARD_SIZE; y++) {
@@ -178,6 +247,7 @@ function SnakeGame({ setSelectedGame }) {
           <h1>🐍 El Gusanito</h1>
           <div 
             className="board" 
+            ref={boardRef} // 👈 ASIGNAMOS LA REFERENCIA AQUÍ
             style={{ 
               gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
               gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr)`
@@ -188,12 +258,12 @@ function SnakeGame({ setSelectedGame }) {
           <h2>Puntuación: {score}</h2>
           {isGameOver && (
             <div className="game-over">
-              ¡Game Over! Puntuación: {score}. Presiona **R** para reiniciar.
+              ¡Game Over! Puntuación: {score}. Presiona **R** para reiniciar o toca **Reiniciar** en móvil.
+              <button onClick={resetGame}>Reiniciar</button>
             </div>
           )}
         </div>
         
-        {/* ⚠️ CONTENEDOR DE ANUNCIO MANTENIDO SOLO PARA QUE AUTO ADS PUEDA USARLO, PERO LIMPIO. */}
         <div className="ad-unit">
             {/* AdSense Auto Ads lo llenará automáticamente si lo necesita. */}
         </div>
