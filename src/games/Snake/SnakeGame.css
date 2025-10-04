@@ -6,6 +6,8 @@ body {
     background-color: #f0f8ff; 
     font-family: 'Press Start 2P', cursive;
     color: #333;
+    /* Evita el scroll en el body si se exceden los límites */
+    overflow: hidden; 
 }
 
 /* CLAVE: position: relative permite posicionar el botón absolute */
@@ -15,45 +17,58 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%; 
-    /* Se puede quitar el padding-bottom ya que los controles móviles desaparecieron */
+    /* Ajustamos el min-height para que siempre ocupe el alto de la vista */
+    min-height: 100vh; /* Asegura que el wrapper ocupe toda la altura visible */
+    justify-content: center; /* Centra el contenido verticalmente */
+    padding: 10px; /* Un poco de padding general para no pegar al borde */
+    box-sizing: border-box; /* Incluye padding en el width/height total */
 }
 
 .game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 15px; 
+    /* Reducimos el padding para dejar más espacio al tablero */
+    padding: 10px; 
     background: linear-gradient(135deg, #a8e063, #56ab2f); 
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); 
     margin: 10px auto; 
-    max-width: 95%; 
+    /* Quitamos max-width: 95% para que se ajuste mejor en pantallas pequeñas */
+    width: 100%; /* Permite que ocupe todo el ancho disponible del game-wrapper */
+    max-width: 500px; /* Mantenemos un max-width para pantallas de escritorio */
+    box-sizing: border-box; /* Incluye padding en el width/height total */
 }
 
 h1 {
     font-size: 2.5rem;
     color: #fff; 
     text-shadow: 3px 3px 0 rgba(0,0,0,0.2); 
-    margin-bottom: 20px;
+    margin-bottom: 10px; /* Reducimos el margen */
+    text-align: center; /* Asegura que el título esté centrado */
+    word-break: break-word; /* Rompe palabras largas si es necesario */
+    line-height: 1.1; /* Ajusta el interlineado */
 }
 
 h2 {
     font-size: 1.8rem;
     color: #fff;
-    margin-top: 20px;
+    margin-top: 15px; /* Reducimos el margen superior */
     text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+    text-align: center;
 }
 
 .board {
     display: grid;
     
-    /* En móviles, se ajusta al 95% del ancho de la vista */
-    width: 95vw; 
-    height: 95vw; 
+    /* 🚀 CAMBIO CLAVE PARA ADAPTABILIDAD TOTAL Y SOLUCIÓN AL PROBLEMA 🚀 */
+    /* El tamaño será el valor MÍNIMO entre 90% del ancho (vw) y 70% del alto (vh) en móviles.
+       El 70% vh es crucial para dejar espacio para el título y la puntuación sin scroll. */
+    width: min(90vw, 90vh); /* En pantallas pequeñas, usa el 90% del viewport más pequeño */
+    height: min(90vw, 90vh);
 
-    /* Máximo para escritorio */
-    max-width: 440px; 
-    max-height: 440px;
+    /* Quitamos max-width y max-height del board aquí para que no interfieran en móvil.
+       La limitación de tamaño general ahora la hará el max-width del .game-container */
     
     border: 8px solid #333; 
     border-radius: 10px; 
@@ -62,8 +77,8 @@ h2 {
     overflow: hidden;
     margin: 0 auto; /* Centrado */
 
-    /* 💡 Nuevo: Indica interactividad, pero solo al pasar el ratón */
     cursor: pointer; 
+    box-sizing: border-box; /* Asegura que el border no añada tamaño extra */
 }
 
 .cell {}
@@ -109,14 +124,14 @@ h2 {
 }
 
 .game-over {
-    margin-top: 25px;
+    margin-top: 15px; /* Reducimos el margen */
     font-size: 1.6rem;
     color: #ffeb3b; 
     font-weight: bold;
     text-align: center;
     text-shadow: 2px 2px 0 #d32f2f; 
     background-color: rgba(0, 0, 0, 0.7);
-    padding: 15px 25px;
+    padding: 10px 15px; /* Reducimos el padding */
     border-radius: 10px;
     border: 2px solid #ffeb3b;
     display: flex;
@@ -126,14 +141,14 @@ h2 {
 
 .game-over button {
     font-family: 'Press Start 2P', cursive;
-    margin-top: 15px;
-    padding: 10px 20px;
+    margin-top: 10px; /* Reducimos el margen */
+    padding: 8px 15px; /* Reducimos el padding */
     background-color: #ff4d4d;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem; /* Ajustamos el tamaño de fuente */
     box-shadow: 0 4px 0 #cc0000;
     transition: transform 0.1s;
 }
@@ -145,7 +160,7 @@ h2 {
 
 
 .ad-unit {
-    margin: 20px 0;
+    margin: 10px 0; /* Reducimos el margen */
     max-width: 440px; 
     width: 95vw; 
 }
@@ -153,16 +168,16 @@ h2 {
 /* 🚀 ESTILOS DEL BOTÓN DE REGRESO 🚀 */
 .back-button {
     position: absolute; 
-    top: 20px;
-    left: 20px;
-    padding: 10px 15px;
+    top: 10px; /* Subimos un poco el botón */
+    left: 10px; /* Movemos a la izquierda */
+    padding: 8px 12px; /* Reducimos el padding */
     background-color: #ff9800; 
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-family: 'Press Start 2P', cursive;
-    font-size: 0.8rem;
+    font-size: 0.7rem; /* Ajustamos el tamaño de fuente */
     z-index: 10; 
     box-shadow: 0 4px 0 #d97800;
     transition: transform 0.1s;
@@ -173,28 +188,37 @@ h2 {
     box-shadow: 0 0 0;
 }
 
-/* ============================================== */
-/* 📱 MEDIA QUERY: Ajustes para Pantallas Móviles */
-/* ============================================== */
+/* MEDIA QUERY PARA PANTALLAS PEQUEÑAS (AJUSTES FINOS) */
 @media (max-width: 500px) {
     h1 {
-        font-size: 1.5rem; 
+        font-size: 1.2rem; /* Más pequeño para móviles */
+        margin-bottom: 8px;
     }
     h2 {
-        font-size: 1.2rem; 
+        font-size: 1rem; /* Más pequeño para móviles */
+        margin-top: 10px;
     }
     .game-over {
-        font-size: 1.2rem; 
-        padding: 10px 15px;
+        font-size: 1rem; /* Más pequeño para móviles */
+        padding: 8px 12px;
+    }
+    .game-over button {
+        font-size: 0.8rem;
+        padding: 6px 10px;
     }
 
-    /* Reduce el padding para el botón de regreso */
+    /* Ajuste responsivo del botón */
     .back-button {
-        top: 10px;
-        left: 10px;
-        font-size: 0.6rem;
-        padding: 5px 8px;
+        top: 5px; /* Más arriba */
+        left: 5px; /* Más a la izquierda */
+        font-size: 0.55rem;
+        padding: 4px 6px;
     }
-    
-    /* Se puede quitar el ajuste del padding-bottom del game-container */
+    .game-wrapper {
+        padding: 5px; /* Menos padding general en móviles */
+    }
+    .game-container {
+        padding: 5px; /* Menos padding interno en móviles */
+        margin: 5px auto;
+    }
 }
